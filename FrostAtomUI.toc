@@ -1,4 +1,0 @@
-## Interface: 30300
-## Author: frostatom
-
-FrostAtomUI.xml

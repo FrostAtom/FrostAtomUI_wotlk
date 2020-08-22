@@ -1,9 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="healthbar.lua"/>
-	<Script file="powerbar.lua"/>
-	<Script file="castbar.lua"/>
-	<Script file="aura.lua"/>
-	<Script file="combat.lua"/>
-	<Script file="leader.lua"/>
-	<Script file="name.lua"/>
-</Ui>
