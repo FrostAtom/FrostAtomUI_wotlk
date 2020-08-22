@@ -1,0 +1,9 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="preinit.lua"/>
+	<Script file="table.lua"/>
+	<Script file="math.lua"/>
+	<Script file="exception.lua"/>
+	<Script file="api.lua"/>
+	<Script file="events.lua"/>
+	<Script file="constants.lua"/>
+</Ui>
