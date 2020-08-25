@@ -1,8 +1,13 @@
 local engine = select(2,...)
 
+local POWER_COLOR_MULTIPLIER = 2
+local CLASS_COLOR_MULTIPLIER = 1.2
+
+local next = next
 local math = math
 
-local function toHEX(t)
+
+local function HEX(t)
 	local result = {}
 	local rgb
 	for k,v in next,t do
@@ -13,24 +18,24 @@ local function toHEX(t)
 	return result
 end
 
-local CLASS_COLORS = {}
+local CLASS_COLORS,CLASS_COLORS_HEX = {}
 for k,v in next,RAID_CLASS_COLORS do
-	CLASS_COLORS[k] = {math.min(v.r*1.25,1),math.min(v.g*1.25,1),math.min(v.b*1.25,1)}
+	CLASS_COLORS[k] = {math.min(v.r*CLASS_COLOR_MULTIPLIER,1),math.min(v.g*CLASS_COLOR_MULTIPLIER,1),math.min(v.b*CLASS_COLOR_MULTIPLIER,1)}
 end
+CLASS_COLORS_HEX = HEX(CLASS_COLORS)
 
 
-local POWER_COLORS = {}
-do
-	for k,v in next,PowerBarColor do
-		POWER_COLORS[k] = {v.r*0.66,v.g*0.66,v.b*0.66}
-	end
+local POWER_COLORS,POWER_COLORS_HEX = {}
+for k,v in next,PowerBarColor do
+	POWER_COLORS[k] = {v.r*POWER_COLOR_MULTIPLIER,v.g*POWER_COLOR_MULTIPLIER,v.b*POWER_COLOR_MULTIPLIER}
 end
+POWER_COLORS_HEX = HEX(POWER_COLORS)
 
 
 
 engine.CLASS_COLORS = CLASS_COLORS
 engine.POWER_COLORS = POWER_COLORS
-engine.CLASS_COLORS_HEX = toHEX(CLASS_COLORS)
-engine.POWER_COLORS_HEX = toHEX(POWER_COLORS)
-engine.STATUSBAR_TEXTURE = "Interface\\Buttons\\WHITE8x8"
-engine.HEALTHBAR_COLORS = {	0.8,0.2,0.2, 0.65,0.63,0.35, 0.33,0.59,0.33, }
+engine.CLASS_COLORS_HEX = CLASS_COLORS_HEX
+engine.POWER_COLORS_HEX = POWER_COLORS_HEX
+engine.STATUSBAR_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
+engine.HEALTHBAR_COLORS = {	1,0.1,0.1, 1,1,0.1, 0.1,1,0.1 }

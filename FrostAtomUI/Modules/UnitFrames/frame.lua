@@ -26,8 +26,8 @@ function unitframes:CreateBase(unit)
 	local frame = setmetatable(CreateFrame("Button",ADDON_NAME..unit:gsub("^%l",string.upper),UIParent,"SecureUnitButtonTemplate"),MT)
 	frame:RegisterForClicks("AnyDown")
 	frame:SetBackdrop(BACKDROP)
-	frame:SetBackdropColor(0.137,0.137,0.137)
-	frame:SetBackdropBorderColor(0.2,0.2,0.2)
+	frame:SetBackdropColor(0.1,0.1,0.1,0.75)
+	frame:SetBackdropBorderColor(0.4,0.4,0.4)
 
 	frame.unit = unit
 	frame:SetAttribute("unit",unit)

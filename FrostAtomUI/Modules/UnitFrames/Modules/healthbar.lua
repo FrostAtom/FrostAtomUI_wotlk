@@ -1,5 +1,6 @@
 local engine = select(2,...)
 local unitframes = engine:module("unitframes")
+local spark = engine:module("spark")
 
 local unpack = unpack
 local UnitIsConnected = UnitIsConnected
@@ -34,6 +35,11 @@ local function healthbar_update(frame)
 	end
 end
 
+local function UNIT_MAXHEALTH(self,unit)
+	if unit ~= self.unit then return end
+	healthbar_update(self)
+end
+
 local function healthbar_create(frame)
 	local healthbar = CreateFrame("StatusBar",nil,frame)
 	healthbar:SetFrameLevel(frame:GetFrameLevel())
@@ -43,9 +49,9 @@ local function healthbar_create(frame)
 	background:SetAllPoints()
 	background:SetTexture(engine.STATUSBAR_TEXTURE)
 
-	local text = healthbar:CreateFontString(nil,"ARTWORK","SystemFont_Outline_Small")
-	text:SetAllPoints()
-    text:SetTextColor(1,0.9,0.8)
+	local text = frame:CreateFontString(nil,"HIGHLIGHT")
+	text:SetFont("Fonts\\FRIZQT__.TTF",9,"OUTLINE")
+	text:SetAllPoints(healthbar)
 
     do
     	local unit,prevHealth = frame.unit
@@ -57,7 +63,9 @@ local function healthbar_create(frame)
 			end
 		end)
 	end
+	frame:RegisterEvent("UNIT_MAXHEALTH",healthbar_update)
 
+	spark:Create(healthbar)
 	healthbar.unit = frame.unit
 	healthbar.background = background
 	healthbar.text = text

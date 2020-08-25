@@ -1,5 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="preinit.lua"/>
+	<Script file="spark.lua"/>
 	<Include file="UnitFrames\UnitFrames.xml"/>
 	<Script file="init.lua"/>
 </Ui>

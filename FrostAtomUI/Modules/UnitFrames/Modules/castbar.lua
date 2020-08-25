@@ -1,25 +1,19 @@
 local engine = select(2,...)
 local unitframes = engine:module("unitframes")
-local BACKDROP = {
-	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	edgeSize = 16,
-	bgFile = "Interface\\Buttons\\WHITE8x8",
-	insets = { top = 2, bottom = 2, left = 2, right = 2, }
-}
+local spark = engine:module("spark")
 
 
-local function castbar_setinterruptible(castbar,isInterruptible)
+local function castbar_setinterruptible(self,isInterruptible)
 	if isInterruptible then
-	    self.icon:SetDesaturated(1)
-	    self:SetStatusBarColor(0.4,0.4,0.4)
+	    self:SetStatusBarColor(1,0.6,0.2)
 	else
-	    self.icon:SetDesaturated(nil)
-	    self:SetStatusBarColor(0.75,0.4,0)
+	    self:SetStatusBarColor(0.45,0.45,0.45)
 	end
 end
 
 local function castbar_update(frame)
 	local castbar = frame.castbar
+	local unit = frame.unit
 
 	local spellName,_,_,_,timeStart,timeEnd,_,castID,notInterruptible = UnitCastingInfo(unit)
 	if not spellName then
@@ -30,42 +24,43 @@ local function castbar_update(frame)
 			return
 		end
 	end
-
 	timeEnd,timeStart = timeEnd/1e3,timeStart/1e3
 
-	castbar.name:SetText(spellName)
-	castbar_setinterruptible(castbar,notInterruptible)
 	castbar:SetMinMaxValues(timeStart,timeEnd)
+	castbar:SetValue(castID and timeStart or timeEnd)
+	castbar.name:SetText(spellName)
+	--castbar.icon:SetTexture(texture ~= "" and texture or "Interface\\Icons\\Inv_Misc_QuestionMark")
 
-	castbar.len = timeEnd-timeStart
-	if castID then -- is cast
-		castbar:SetValue(0)
-	else -- is channel
-		castbar:SetValue(1)
+	if unit ~= "player" then
+		castbar_setinterruptible(castbar,not notInterruptible)
 	end
 
-	local remain = timeEnd-GetTime()
-	castbar.remain = remain
+	castbar.remain = timeEnd-GetTime()
+	castbar.timeEnd = timeEnd
+	castbar.timeStart = timeStart
 	castbar.castID = castID
-	castbar.casting = true
+	castbar.isCasting = true
 	castbar:SetAlpha(1)
 	castbar:Show()
-
 end
 
-local function castbar_endcast(castbar)
-	self:SetValue(self.len)
-	self.timer:SetText(nil)
-	self.casting = nil
+local function castbar_endcast(self,isFailed)
+	if isFailed or self.isCasting then
+		self:SetValue(isFailed and self.timeStart or self.timeEnd)
+		self.isCasting = nil
+	end
 end
 
 local function OnUpdate(self,elapsed)
 	if self.isCasting then
 		local remain = self.remain - elapsed
 		if remain > 0 then
-			local len = self.len
-			self:SetValue(self.castID and len+remain or len-remain)
-			self.timer:SetFormattedText("%.01f/%.01f",remain,len)
+			if self.castID then
+				self:SetValue(self.timeEnd - remain)
+			else
+				self:SetValue(self.timeStart + remain)
+			end
+
 			self.remain = remain
 		else
 			castbar_endcast(self)
@@ -90,8 +85,7 @@ local function UNIT_SPELLCAST_FAILED(self,unit,_,_,castID)
 
 	local castbar = self.castbar
 	if castID == castbar.castID then
-	    castbar.name:SetText("|cff8B0000INTERRUPTED|r")
-		castbar_endcast(castbar)
+		castbar_endcast(castbar,true)
 	end
 end
 
@@ -117,26 +111,22 @@ end
 local function castbar_create(frame)
 	local castbar = CreateFrame("StatusBar",nil,frame)
 	castbar:SetFrameLevel(frame:GetFrameLevel())
-	castbar:SetMinMaxValues(0,1)
 	castbar:SetScript("OnUpdate",OnUpdate)
-	castbar:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+	castbar:SetStatusBarTexture(engine.STATUSBAR_TEXTURE)
+	castbar:SetStatusBarColor(1,0.6,0.2)
 
-	local background = CreateFrame("frame",nil,castbar)
-	background:SetPoint("TOPRIGHT",3,3)
-	background:SetPoint("BOTTOMLEFT",-3,-3)
-	background:SetBackdrop(BACKDROP)
-	background:SetBackdropColor(0,0,0,0.8)
-	background:SetBackdropBorderColor(0.4,0.4,0.4,0.95)
-	background:SetFrameLevel(castbar:GetFrameLevel())
+	local background = castbar:CreateTexture(nil,"BACKGROUND")
+	background:SetAllPoints()
+	background:SetTexture(engine.STATUSBAR_TEXTURE)
+	background:SetVertexColor(0,0,0,0.5)
 
-	local timer = castbar:CreateFontString(nil,"ARTWORK","NumberFontNormal")
-	timer:SetAllPoints()
-	timer:SetJustifyH("RIGHT")
+	--local icon = castbar:CreateTexture(nil,"BORDER")
+	--icon:SetTexCoord(0.07,0.93,0.07,0.93)
 
 	local name = castbar:CreateFontString(nil,"ARTWORK")
-	name:SetFont("Fonts\\ARIALN.TTF",12,"OUTLINE")
+	name:SetFont("Fonts\\ARIALN.TTF",10,"OUTLINE")
+	name:SetShadowOffset(1,-1)
 	name:SetPoint("CENTER")
-
 
 	frame:RegisterEvent("UNIT_SPELLCAST_START",UNIT_SPELLCAST_START)
 	frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START",UNIT_SPELLCAST_START)
@@ -152,7 +142,9 @@ local function castbar_create(frame)
 		frame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE",UNIT_SPELLCAST_NOT_INTERRUPTIBLE)
 	end
 
+	spark:Create(castbar)
 	castbar.timer = timer
+	--castbar.icon = icon
 	castbar.name = name
 
 

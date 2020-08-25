@@ -44,7 +44,7 @@ function prototype:UnregisterEvent(event,func)
 	local callbacks_event_self = callbacks_event[self]
 	if not callbacks_event_self then return end
 
-	local isMayByEmpty
+	local isCanBeEmpty
 	if func then
 		if type(callbacks_event_self) == "table" then
 			if table.removeByValue(callbacks_event_self,func) then
@@ -56,7 +56,7 @@ function prototype:UnregisterEvent(event,func)
 		else
 			if callbacks_event_self == func then
 				callbacks_event[self] = nil
-				isMayByEmpty = true
+				isCanBeEmpty = true
 			end
 		end
 	else
@@ -64,21 +64,21 @@ function prototype:UnregisterEvent(event,func)
 			table.del(callbacks_event_self)
 		end
 		callbacks_event[self] = nil
-		isMayByEmpty = true
+		isCanBeEmpty = true
 	end
 
-	if isMayByEmpty and not next(callbacks_event) then
+	if isCanBeEmpty and not next(callbacks_event) then
 		callbacks[event] = table.del(callbacks_event)
 		frame:UnregisterEvent(event)
 	end
 end
 
 function prototype:UnregisterAllEvents()
-	local callbacks_event_self,isMayByEmpty
+	local callbacks_event_self,isCanBeEmpty
 	for event,callbacks_event in next,callbacks do
 		callbacks_event_self = callbacks_event[self]
 		if callbacks_event_self then
-			isMayByEmpty = false
+			isCanBeEmpty = false
 
 			if type(callbacks_event_self) == "table" then
 				if table.removeByValue(callbacks_event_self,func) then
@@ -90,11 +90,11 @@ function prototype:UnregisterAllEvents()
 			else
 				if callbacks_event_self == func then
 					callbacks_event[self] = nil
-					isMayByEmpty = true
+					isCanBeEmpty = true
 				end
 			end
 
-			if isMayByEmpty and not next(callbacks_event) then
+			if isCanBeEmpty and not next(callbacks_event) then
 				callbacks[event] = table.del(callbacks_event)
 				frame:UnregisterEvent(event)
 			end
@@ -109,10 +109,10 @@ local function FireEvent(event,...)
 	for object,callback in next,callbacks_event do
 		if type(callback) == "table" then
 			for i = 1,#callback do
-				safecall(callback[i],object)
+				safecall(callback[i],object,...)
 			end
 		else
-			safecall(callback,object)
+			safecall(callback,object,...)
 		end
 	end
 end
