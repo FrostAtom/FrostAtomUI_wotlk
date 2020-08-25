@@ -2,38 +2,36 @@ local engine = select(2,...)
 local spark = engine:module("spark")
 
 
+local function statusbar_UpdateSpark(self,value,min,max)
+	if not min then min,max = self:GetMinMaxValues() end
+	if not value then value = self:GetValue() end
+	local spark = self.spark
+
+	if min == max then
+		spark:Hide()
+		return
+	end
+
+	spark:SetPoint("CENTER",self,"LEFT",self:GetWidth()*((value-min)/(max-min)),0)
+	spark:Show()
+end
+
+local function statusbar_OnValueChanged(self,value)
+	statusbar_UpdateSpark(self,value)
+end
+
+local function statusbar_SetMinMaxValues_hk(self,min,max)
+	statusbar_UpdateSpark(self,nil,min,max)
+end
+
 function spark:Create(statusbar)
 	local texture = statusbar:CreateTexture(nil,"OVERLAY")
 	texture:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	texture:SetBlendMode("ADD")
 
-	local m_min,m_max,m_value = 0,0,0
-	local orig_SetMinMaxValues,orig_SetValue = statusbar.SetMinMaxValues,statusbar.SetValue
+	statusbar:HookScript("OnValueChanged",statusbar_OnValueChanged)
+	hooksecurefunc(statusbar,"SetMinMaxValues",statusbar_SetMinMaxValues_hk)
 
-	local function UpdateSpark()
-		if m_min == m_max then
-			texture:Hide()
-			return
-		end
-
-		local width = statusbar:GetWidth()
-		local perc = m_value/(m_max-m_min)
-
-		texture:SetPoint("CENTER",statusbar,"LEFT",width*perc,0)
-		texture:Show()	
-	end
-
-	statusbar.SetMinMaxValues = function(self,min,max)
-		m_min,m_max = min,max
-		UpdateSpark()
-
-		return orig_SetMinMaxValues(self,min,max)
-	end
-
-	statusbar.SetValue = function(self,value)
-		m_value = value
-		UpdateSpark()
-
-		return orig_SetValue(self,value)
-	end
+	statusbar.UpdateSpark = statusbar_UpdateSpark
+	statusbar.spark = texture
 end

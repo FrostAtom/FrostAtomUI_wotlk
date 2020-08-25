@@ -48,7 +48,8 @@ local function powerbar_create(frame)
 	background:SetTexture(engine.STATUSBAR_TEXTURE)
 
 	local text = frame:CreateFontString(nil,"HIGHLIGHT")
-	text:SetFont("Fonts\\FRIZQT__.TTF",9,"OUTLINE")
+	text:SetFont("Fonts\\ARIALN.TTF",10)
+	text:SetShadowOffset(1,-1)
 	text:SetAllPoints(powerbar)
 
     do

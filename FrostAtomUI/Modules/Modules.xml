@@ -2,5 +2,6 @@
 	<Script file="preinit.lua"/>
 	<Script file="spark.lua"/>
 	<Include file="UnitFrames\UnitFrames.xml"/>
+	<Script file="nameplates.lua"/>
 	<Script file="init.lua"/>
 </Ui>

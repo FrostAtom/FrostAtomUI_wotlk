@@ -124,7 +124,7 @@ local function castbar_create(frame)
 	--icon:SetTexCoord(0.07,0.93,0.07,0.93)
 
 	local name = castbar:CreateFontString(nil,"ARTWORK")
-	name:SetFont("Fonts\\ARIALN.TTF",10,"OUTLINE")
+	name:SetFont("Fonts\\ARIALN.TTF",10)
 	name:SetShadowOffset(1,-1)
 	name:SetPoint("CENTER")
 

@@ -3,7 +3,7 @@ local unitframes = engine:module("unitframes")
 
 
 function unitframes:OnInitialize()
-    local player = self:CreatePlayerFrame(210,28)
+    local player = self:CreatePlayerFrame(180,26)
     player:SetPoint("CENTER",0,-180)
 
     
