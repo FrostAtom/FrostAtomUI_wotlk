@@ -39,39 +39,23 @@ local function castbar_update(frame)
 	castbar.timeEnd = timeEnd
 	castbar.timeStart = timeStart
 	castbar.castID = castID
-	castbar.isCasting = true
 	castbar:SetAlpha(1)
 	castbar:Show()
 end
 
-local function castbar_endcast(self,isFailed)
-	if isFailed or self.isCasting then
-		self:SetValue(isFailed and self.timeStart or self.timeEnd)
-		self.isCasting = nil
-	end
-end
 
 local function OnUpdate(self,elapsed)
-	if self.isCasting then
-		local remain = self.remain - elapsed
-		if remain > 0 then
-			if self.castID then
-				self:SetValue(self.timeEnd - remain)
-			else
-				self:SetValue(self.timeStart + remain)
-			end
+	local remain = self.remain - elapsed
+	if remain > 0 then
+		if self.castID then
+			self:SetValue(self.timeEnd - remain)
+		else
+			self:SetValue(self.timeStart + remain)
+		end
 
-			self.remain = remain
-		else
-			castbar_endcast(self)
-		end
+		self.remain = remain
 	else
-		local newAlpha = self:GetAlpha()-elapsed*1.4
-		if newAlpha > 0 then
-			self:SetAlpha(newAlpha)
-		else
-			self:Hide()
-		end
+		self:Hide()
 	end
 end
 
@@ -85,7 +69,7 @@ local function UNIT_SPELLCAST_FAILED(self,unit,_,_,castID)
 
 	local castbar = self.castbar
 	if castID == castbar.castID then
-		castbar_endcast(castbar,true)
+		castbar:Hide()
 	end
 end
 
@@ -94,7 +78,7 @@ local function UNIT_SPELLCAST_STOP(self,unit)
 
 	local castbar = self.castbar
 	if castbar.isCasting then
-		castbar_endcast(castbar)
+		castbar:Hide()
 	end
 end
 
