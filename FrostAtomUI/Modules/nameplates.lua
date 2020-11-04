@@ -66,15 +66,14 @@ local function healthbar_OnValueChanged(self,value)
 			if not delimiter then
 				delimiter = self:CreateTexture(nil,"OVERLAY")
 				delimiter:SetPoint("TOP")
-				delimiter:SetPoint("BOTTOM")
 				table.insert(delimiters,delimiter)
 			end
 
 			if i % HEALTHBAR_INTERMEDIATEDELIMS == 0 then
-				delimiter:SetWidth(2)
+				delimiter:SetWidth(2,NAMEPLATE_HEIGHT)
 				delimiter:SetTexture(0,0,0,1)
 			else
-				delimiter:SetWidth(1)
+				delimiter:SetSize(1,NAMEPLATE_HEIGHT*0.6)
 				delimiter:SetTexture(0,0,0,0.75)
 			end
 
@@ -128,6 +127,7 @@ local function SetupNameplate(frame)
 	healthbar:SetFrameLevel(frame:GetFrameLevel())
 	healthbar:SetBackdrop(BACKDROP)
 	healthbar:SetBackdropBorderColor(0,0,0)
+	if HEALTHBAR_TEXTURE then healthbar:SetStatusBarTexture(HEALTHBAR_TEXTURE) end
 	--castbar:SetFrameLevel(frame:GetFrameLevel())
 	--castbar:ClearAllPoints()
 
