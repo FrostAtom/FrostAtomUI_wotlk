@@ -55,7 +55,7 @@ local function healthbar_OnValueChanged(self,value)
 	local delimiters = self.delimiters
 	local _,maxValue = self:GetMinMaxValues()
 	local width = self:GetWidth()
-	local delimHealth = GetDelimHealth(HEALTHBAR_DELIMHEALTH,value)
+	local delimHealth = GetDelimHealth(HEALTHBAR_DELIMHEALTH,maxValue)
 	local widthStep = width*((delimHealth/HEALTHBAR_INTERMEDIATEDELIMS)/maxValue)
 
 	local delimiter
