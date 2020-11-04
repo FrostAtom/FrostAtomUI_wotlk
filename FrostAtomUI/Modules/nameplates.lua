@@ -43,7 +43,7 @@ local function healthbar_OnUpdate(self)
 	self.highlight:SetAllPoints(self.border)
 end
 
-function GetDelimHealth(min,value)
+local function GetDelimHealth(min,value)
 	while value / min > 10 do
 		min = min * 10
 	end
