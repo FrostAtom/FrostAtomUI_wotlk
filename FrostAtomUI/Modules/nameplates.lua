@@ -62,7 +62,7 @@ local function healthbar_OnValueChanged(self,value)
 	for i = 1,math.max(math.floor(width/widthStep),#delimiters) do
 		delimiter = delimiters[i]
 
-		if (widthStep * i <= width) then
+		if (widthStep * (i+1) <= width) then
 			if not delimiter then
 				delimiter = self:CreateTexture(nil,"OVERLAY")
 				delimiter:SetPoint("TOP")
