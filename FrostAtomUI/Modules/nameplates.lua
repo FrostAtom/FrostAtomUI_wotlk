@@ -1,8 +1,12 @@
 local engine = select(2,...)
 local spark = engine:module("spark")
+local NAMEPLATE_WIDTH,NAMEPLATE_HEIGHT = 120,8
+local HEALTHBAR_DELIMHEALTH = 10e3
+local HEALTHBAR_INTERMEDIATEDELIMS = 4
 
 local select = select
 local unpack = unpack
+local math = math
 local CreateFrame = CreateFrame
 local HEALTHBAR_COLORS = engine.HEALTHBAR_COLORS
 local ColorGradient = engine.ColorGradient
@@ -10,6 +14,19 @@ local HideInherited = engine.HideInherited
 
 local isTargetExists
 
+
+local function castbar_OnUpdate(self)
+	self:ClearAllPoints()
+	self:SetSize(100,4)
+	self:SetPoint("TOP",self.healthbar,"BOTTOM",0,-4)
+
+	if self.shield:IsShown() then
+	    self:SetStatusBarColor(0.45,0.45,0.45)
+	    self.background:Show()
+	else
+	    self:SetStatusBarColor(1,0.6,0.2)
+	end
+end
 
 local function healthbar_OnUpdate(self)
 	local r,g,b = self:GetStatusBarColor()
@@ -26,9 +43,57 @@ local function healthbar_OnUpdate(self)
 	self.highlight:SetAllPoints(self.border)
 end
 
+function GetDelimHealth(min,value)
+	while value / min > 10 do
+		min = min * 10
+	end
+
+	return min
+end
+
+local function healthbar_OnValueChanged(self,value)
+	local delimiters = self.delimiters
+	local _,maxValue = self:GetMinMaxValues()
+	local width = self:GetWidth()
+	local delimHealth = GetDelimHealth(HEALTHBAR_DELIMHEALTH,value)
+	local widthStep = width*((delimHealth/HEALTHBAR_INTERMEDIATEDELIMS)/maxValue)
+
+	local delimiter
+	for i = 1,math.max(math.floor(width/widthStep),#delimiters) do
+		delimiter = delimiters[i]
+
+		if (widthStep * i <= width) then
+			if not delimiter then
+				delimiter = self:CreateTexture(nil,"OVERLAY")
+				delimiter:SetPoint("TOP")
+				delimiter:SetPoint("BOTTOM")
+				table.insert(delimiters,delimiter)
+			end
+
+			if i % HEALTHBAR_INTERMEDIATEDELIMS == 0 then
+				delimiter:SetWidth(2)
+				delimiter:SetTexture(0,0,0,1)
+			else
+				delimiter:SetWidth(1)
+				delimiter:SetTexture(0,0,0,0.75)
+			end
+
+			delimiter:SetPoint("LEFT",-1+widthStep*i,0)
+			delimiter:Show()
+		elseif delimiter and delimiter:IsShown() then
+			delimiter:Hide()
+		else
+			break
+		end
+	end
+end
+
+local function healthbar_OnShow(self)
+	healthbar_OnValueChanged(self,self:GetValue())
+end
+
 local function healthbar_UpdateName(self,unitName)
 	local name = self.name
-
 	name:SetText(unitName)
 	local stringWidth,maxWidth = name:GetStringWidth(),self:GetWidth()*(3/4)
 	if stringWidth > maxWidth then
@@ -45,7 +110,7 @@ end
 local function nameplate_OnShow(self)
 	local healthbar = self.healthbar
 	healthbar:ClearAllPoints()
-	healthbar:SetSize(100,4)
+	healthbar:SetSize(NAMEPLATE_WIDTH,NAMEPLATE_HEIGHT)
 	healthbar:SetPoint("TOP",0,-5)
 
 	local unitName = self.origName:GetText()
@@ -58,19 +123,29 @@ local function nameplate_OnHide(self)
 end
 
 local function SetupNameplate(frame)
-	local healthbar = frame:GetChildren()
-	local threat,hpborder,cbshield,cbborder,cbicon,highlight,origName,level,bossicon,raidicon,elite = frame:GetRegions()
+	local healthbar,castbar = frame:GetChildren()
+	local threat,hpborder,cbborder,cbshield,cbicon,highlight,origName,level,bossicon,raidicon,elite = frame:GetRegions()
 	healthbar:SetFrameLevel(frame:GetFrameLevel())
-	healthbar:SetStatusBarTexture(engine.STATUSBAR_TEXTURE)
 	healthbar:SetBackdrop(BACKDROP)
 	healthbar:SetBackdropBorderColor(0,0,0)
+	--castbar:SetFrameLevel(frame:GetFrameLevel())
+	--castbar:ClearAllPoints()
 
 	HideInherited(threat)
 	HideInherited(hpborder)
-	-- cbshield
-	-- cbborder
-	-- cbicon
-	highlight:SetTexture(1,1,1,0.5)
+	HideInherited(cbshield)
+	--cbborder:SetParent(castbar)
+	--cbborder:SetTexture(0,0,0)
+	--cbborder:SetDrawLayer("BACKGROUND")
+	--cbborder:ClearAllPoints()
+	--cbborder:SetPoint("TOPRIGHT",2,2)
+	--cbborder:SetPoint("BOTTOMLEFT",-2,-2)
+	--cbicon:SetParent(castbar)
+	--cbicon:SetTexCoord(0.07,0.93,0.07,0.93)
+	--cbicon:ClearAllPoints()
+	--cbicon:SetSize(16,16)
+	--cbicon:SetPoint("BOTTOMRIGHT",castbar,"BOTTOMLEFT",-2,-2)
+	highlight:SetTexture(1,1,1,0.35)
 	HideInherited(origName)
 	HideInherited(level)
 	HideInherited(bossicon)
@@ -94,15 +169,23 @@ local function SetupNameplate(frame)
 
 
     --spark:Create(healthbar)
-	frame.healthbar = healthbar
-	frame.origName = origName
-	frame.highlight = highlight
 	healthbar.name = name
 	healthbar.background = background
 	healthbar.border = border
 	healthbar.highlight = highlight
+	--castbar.healthbar = healthbar
+	--castbar.shield = cbshield
+	--castbar.background = cbborder
+	frame.healthbar = healthbar
+	frame.origName = origName
+	frame.highlight = highlight
 
+	healthbar.delimiters = {}
 	healthbar:SetScript("OnUpdate",healthbar_OnUpdate)
+	healthbar:SetScript("OnShow",healthbar_OnShow)
+	healthbar_OnShow(healthbar)
+	healthbar:SetScript("OnValueChanged",healthbar_OnValueChanged)
+	--castbar:SetScript("OnUpdate",castbar_OnUpdate)
 	frame:SetScript("OnUpdate",nameplate_OnUpdate)
 	frame:SetScript("OnShow",nameplate_OnShow)
 	frame:SetScript("OnHide",nameplate_OnHide)

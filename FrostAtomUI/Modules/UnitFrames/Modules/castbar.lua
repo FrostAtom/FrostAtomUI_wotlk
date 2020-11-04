@@ -21,6 +21,7 @@ local function castbar_update(frame)
 
 		if not spellName then
 			castbar:Hide()
+			castbar.isCasting = nil
 			return
 		end
 	end
@@ -35,6 +36,7 @@ local function castbar_update(frame)
 		castbar_setinterruptible(castbar,not notInterruptible)
 	end
 
+	castbar.isCasting = true
 	castbar.remain = timeEnd-GetTime()
 	castbar.timeEnd = timeEnd
 	castbar.timeStart = timeStart
@@ -56,6 +58,7 @@ local function OnUpdate(self,elapsed)
 		self.remain = remain
 	else
 		self:Hide()
+		self.isCasting = nil
 	end
 end
 
@@ -70,6 +73,7 @@ local function UNIT_SPELLCAST_FAILED(self,unit,_,_,castID)
 	local castbar = self.castbar
 	if castID == castbar.castID then
 		castbar:Hide()
+		castbar.isCasting = nil
 	end
 end
 
@@ -79,6 +83,7 @@ local function UNIT_SPELLCAST_STOP(self,unit)
 	local castbar = self.castbar
 	if castbar.isCasting then
 		castbar:Hide()
+		castbar.isCasting = nil
 	end
 end
 

@@ -38,4 +38,4 @@ engine.POWER_COLORS = POWER_COLORS
 engine.CLASS_COLORS_HEX = CLASS_COLORS_HEX
 engine.POWER_COLORS_HEX = POWER_COLORS_HEX
 engine.STATUSBAR_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
-engine.HEALTHBAR_COLORS = {	1,0.1,0.1, 1,1,0.1, 0.1,1,0.1 }
+engine.HEALTHBAR_COLORS = {	1,0,0, 1,1,0, 0,1,0 }
